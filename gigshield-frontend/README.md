@@ -1,50 +1,60 @@
-# Welcome to your Expo app 👋
+# GigShield Frontend
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+GigShield is a premium, React Native-based frontend for modern gig-workers. It provides an elegant, dark-themed (Material Design 3) interface for managing earnings, tracking health/safety scores, and viewing dynamic insurance coverage policies triggered by API integrations. 
 
-## Get started
+## 🚀 Features
+- **Dynamic Dashboard:** Real-time earnings ledger, recent payouts progress, and activity trends.
+- **Safety & Health Metrics:** Integration with mock safety scores and dynamic health data to show real-time "Security Ratings."
+- **Policy Management:** Browse coverage plans like 'Pro Active' or 'Elite Shield' with dynamic deductibles and features calculated on the backend.
+- **Trigger Views:** Smart UI components that react to external variables (e.g. Extreme Heat Alerts or Wind Speeds) to display active protection thresholds.
+- **Claim & Payout Handling:** File claims with an intuitive form or view instant payouts triggered by coverage conditions.
 
+## 🛠️ Tech Stack
+- **Framework:** [Expo](https://expo.dev/) & [React Native](https://reactnative.dev/)
+- **State Management:** [Zustand](https://github.com/pmndrs/zustand)
+- **Navigation:** [React Navigation](https://reactnavigation.org/) (Stack & Bottom Tabs)
+- **Styling/UI:** Custom Material Design 3 (M3) Dark Theme + `expo-linear-gradient` + `@expo/vector-icons`
+
+## 🏃‍♂️ Getting Started
+
+### Prerequisites
+Make sure you have Node.js installed, along with Expo CLI.
+You must be running the **GigShield Backend** API locally on port `3001` before the frontend can fully function.
+
+### Installation
 1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Start the Expo development server
+```bash
+npm start
+# or
+expo start
+```
 
-## Learn more
+3. Press `a` to open in Android emulator, `i` for iOS simulator, or scan the QR code using the Expo Go app on your physical device.
 
-To learn more about developing your project with Expo, look at the following resources:
+## 🔗 Connecting to Backend
+The API base URL is currently configured in `src/services/api.ts` to point to:
+```typescript
+const BASE_URL = 'http://localhost:3001/api';
+```
+If you are running on a physical Android device, change `localhost` to your computer's local local IP address (e.g., `http://192.168.1.XX:3001/api`).
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 📁 Project Structure
+```text
+gigshield-frontend/
+├── src/
+│   ├── components/
+│   │   └── core/          # Reusable UI elements (SurfaceCard, ThemedText, GradientButton)
+│   ├── constants/
+│   │   └── Theme.ts       # M3 Colors, Gradients, Spacing, and Typography definitions
+│   ├── screens/           # Main application screens (Dashboard, Profile, Claims, etc.)
+│   ├── services/
+│   │   └── api.ts         # Centralized API fetch logic and authentication headers
+│   ├── store/
+│   │   └── store.ts       # Zustand state management for authenticated user contexts
+│   └── App.tsx            # Main Navigation setup (AuthStack & AppStack)
+```
