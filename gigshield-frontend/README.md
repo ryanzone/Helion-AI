@@ -1,6 +1,6 @@
-# GigShield Frontend
+# Helion Frontend
 
-GigShield is a premium, React Native-based frontend for modern gig-workers. It provides an elegant, dark-themed (Material Design 3) interface for managing earnings, tracking health/safety scores, and viewing dynamic insurance coverage policies triggered by API integrations.
+Helion is a premium, React Native-based frontend for modern gig-workers. It provides an elegant, dark-themed (Material Design 3) interface for managing earnings, tracking health/safety scores, and viewing dynamic insurance coverage policies triggered by API integrations.
 
 ## 🚀 Features
 
@@ -22,7 +22,7 @@ GigShield is a premium, React Native-based frontend for modern gig-workers. It p
 ### Prerequisites
 
 Make sure you have Node.js installed, along with Expo CLI.
-You must be running the **GigShield Backend** API locally on port `3001` before the frontend can fully function.
+You must be running the **Helion Backend** API locally on port `3001` before the frontend can fully function.
 
 ### Installation
 

@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "gigshield-frontend",
-    "slug": "gigshield-frontend",
+    "name": "helion-frontend",
+    "slug": "helion-frontend",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "gigshieldfrontend",
+    "scheme": "helionfrontend",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

@@ -13,7 +13,7 @@ import { ThemedText } from '../components/core/ThemedText';
 import { SurfaceCard } from '../components/core/SurfaceCard';
 
 export default function PayoutSuccessScreen({ route, navigation }: any) {
-    const { amount = 450, type = 'Payment' } = route.params || {};
+const { amount = 450, type = 'Payment', txnId } = route.params || {};
     
     return (
         <SafeAreaView style={styles.container}>
@@ -34,7 +34,7 @@ export default function PayoutSuccessScreen({ route, navigation }: any) {
                 </ThemedText>
 
                 {/* Transaction details */}
-                <TransactionDetails amount={amount} />
+                <TransactionDetails amount={amount} txnId={txnId} />
 
                 {/* Done button */}
                 <TouchableOpacity
@@ -72,11 +72,11 @@ function SuccessIcon() {
     );
 }
 
-function TransactionDetails({ amount }: { amount: number }) {
+function TransactionDetails({ amount, txnId }: { amount: number; txnId?: string }) {
     const details: Array<{ label: string; value: string; icon?: any; highlight?: boolean }> = [
-        { label: 'Transaction ID', value: `#TXN-${Math.floor(Math.random() * 90000) + 10000}-GS` },
+        { label: 'Transaction ID', value: txnId || `#TXN-${amount}-GS` },
         { label: 'Amount', value: `₹${amount}` },
-        { label: 'Est. Arrival', value: 'Instant (GigShield Priority)', highlight: true },
+        { label: 'Est. Arrival', value: 'Instant (Helion Priority)', highlight: true },
     ];
 
     return (

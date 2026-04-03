@@ -43,7 +43,11 @@ export default function LoginScreen({ navigation }: Props) {
             setUser(data.user);
             setLoggedIn(true);
         } catch (error: any) {
-            Alert.alert('Error', error.message || 'Login failed. Try again.');
+            let msg = error.message || 'Login failed. Try again.';
+            if (msg.toLowerCase().includes('invalid') || msg.toLowerCase().includes('not found')) {
+                msg = 'Account not found. Please register first, or check your credentials.';
+            }
+            Alert.alert('Login Error', msg);
         } finally {
             setLoading(false);
         }
@@ -64,7 +68,7 @@ export default function LoginScreen({ navigation }: Props) {
                     <View style={styles.topBrand}>
                         <MaterialIcons name="security" size={28} color={COLORS.primary} />
                         <ThemedText variant="h3" color={COLORS.primary} style={{ fontWeight: '900', letterSpacing: -1 }}>
-                            GigShield
+                            Helion
                         </ThemedText>
                     </View>
 
@@ -126,7 +130,7 @@ export default function LoginScreen({ navigation }: Props) {
                         </TouchableOpacity>
 
                         <GradientButton
-                            title="Sign In to GigShield"
+                            title="Sign In to Helion"
                             onPress={handleLogin}
                             loading={loading}
                             icon="arrow-forward"

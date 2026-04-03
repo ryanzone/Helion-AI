@@ -5,7 +5,6 @@ const authMiddleware = require('../middleware/auth');
 const router = express.Router();
 router.use(authMiddleware);
 
-// GET /api/dashboard
 router.get('/', async (req, res) => {
   const userId = req.userId;
 
@@ -15,24 +14,24 @@ router.get('/', async (req, res) => {
     { data: claims },
     { data: healthStats },
     { data: coverageRows },
+    { data: subscription },
   ] = await Promise.all([
     supabase.from('payouts').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(3),
     supabase.from('earnings').select('amount').eq('user_id', userId),
     supabase.from('claims').select('status').eq('user_id', userId),
     supabase.from('health_stats').select('safety_score').eq('user_id', userId).single(),
     supabase.from('coverage').select('label, value').eq('user_id', userId),
+    supabase.from('subscriptions').select('status, city_pool, plans(name, weekly_price, payout_amount)').eq('user_id', userId).eq('status', 'active').single(),
   ]);
-
-  const totalEarnings = (earnings || []).reduce((sum, e) => sum + e.amount, 0);
-  const activeClaims = (claims || []).filter(c => c.status === 'Pending').length;
-  const safetyScore = healthStats?.safety_score ?? 0;
 
   res.json({
     stats: {
-      totalEarnings,
-      activeClaims,
-      safetyScore,
-      activePlan: 'Pro Shield',
+      totalEarnings: (earnings || []).reduce((sum, e) => sum + e.amount, 0),
+      activeClaims: (claims || []).filter(c => c.status === 'Pending').length,
+      safetyScore: healthStats?.safety_score ?? 0,
+      activePlan: subscription?.plans?.name ?? 'None',
+      weeklyPremium: subscription?.plans?.weekly_price ?? 0,
+      cityPool: subscription?.city_pool ?? null,
     },
     recentPayouts: payouts || [],
     coverage: coverageRows || [],

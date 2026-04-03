@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
     View,
     StyleSheet,
@@ -24,9 +25,11 @@ export default function ClaimHistoryScreen({ navigation }: any) {
     const [summary, setSummary] = useState<any>({ total: 0, approved: 0, pending: 0 });
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        loadClaims();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            loadClaims();
+        }, [])
+    );
 
     const loadClaims = async () => {
         try {
@@ -37,6 +40,15 @@ export default function ClaimHistoryScreen({ navigation }: any) {
             console.log('Claims load error:', e);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleApprove = async (id: string) => {
+        try {
+            await api.updateClaimStatus(id, 'Approved');
+            loadClaims();
+        } catch (err) {
+            console.log('Approve failed:', err);
         }
     };
 
@@ -57,7 +69,7 @@ export default function ClaimHistoryScreen({ navigation }: any) {
             <StatusBar barStyle="light-content" />
 
             {/* Top bar */}
-            <TopBar />
+            <TopBar navigation={navigation} />
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {/* Header */}
@@ -78,7 +90,7 @@ export default function ClaimHistoryScreen({ navigation }: any) {
                 {/* Claims list */}
                 {filteredClaims.length > 0 ? filteredClaims.map((claim: any, i: number) => (
                     <React.Fragment key={claim.id}>
-                        <ClaimCard claim={claim} />
+                        <ClaimCard claim={claim} onApprove={() => handleApprove(claim.id)} />
                         {i === 0 && (
                             <AIInsightChip
                                 description={`Your approval rate has increased this quarter. Submitting detailed descriptions is driving faster processing times.`}
@@ -118,14 +130,14 @@ export default function ClaimHistoryScreen({ navigation }: any) {
 
 // ─── Sub Components ────────────────────────────────────
 
-function TopBar() {
+function TopBar({ navigation }: { navigation: any }) {
     return (
         <View style={styles.topBar}>
             <View style={styles.topBarLeft}>
                 <MaterialIcons name="security" size={24} color={COLORS.primary} />
-                <ThemedText variant="h3" color={COLORS.primary} style={{ letterSpacing: -1 }}>GigShield</ThemedText>
+                <ThemedText variant="h3" color={COLORS.primary} style={{ letterSpacing: -1 }}>Helion</ThemedText>
             </View>
-            <TouchableOpacity style={styles.avatar}>
+            <TouchableOpacity style={styles.avatar} onPress={() => navigation.navigate('Account')}>
                 <MaterialIcons name="person" size={20} color={COLORS.onSurface} />
             </TouchableOpacity>
         </View>
@@ -177,7 +189,7 @@ function FilterChips({ filters, active, onSelect }: {
     );
 }
 
-function ClaimCard({ claim }: { claim: any }) {
+function ClaimCard({ claim, onApprove }: { claim: any; onApprove?: () => void }) {
     const statusLower = (claim.status || '').toLowerCase();
     const iconBg = statusLower === 'approved' ? 'rgba(128, 217, 164, 0.1)' :
                    statusLower === 'pending' ? 'rgba(206, 189, 255, 0.1)' :
@@ -224,6 +236,27 @@ function ClaimCard({ claim }: { claim: any }) {
                     </ThemedText>
                 </View>
             </View>
+
+            {/* 🛠️ DEMO MODE APPROVAL BUTTON */}
+            {statusLower === 'pending' && (
+                <TouchableOpacity
+                    onPress={onApprove}
+                    style={{
+                        marginTop: 16,
+                        padding: 10,
+                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                        borderRadius: 8,
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        borderWidth: 1,
+                        borderColor: 'rgba(76, 175, 80, 0.2)'
+                    }}
+                >
+                    <MaterialIcons name="check-circle" size={16} color="#4CAF50" style={{ marginRight: 6 }} />
+                    <ThemedText color="#4CAF50" style={{ fontWeight: '700', fontSize: 12 }}>ADMIN: APPROVE CLAIM</ThemedText>
+                </TouchableOpacity>
+            )}
         </SurfaceCard>
     );
 }

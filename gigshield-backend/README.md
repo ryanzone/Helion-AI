@@ -1,10 +1,10 @@
-# GigShield Backend
+# Helion Backend
 
-Backend API for GigShield, built using Node.js and Express.
+Backend API for Helion, built using Node.js and Express.
 
 ## 🚀 Overview
 
-This repository contains the server-side API for GigShield, a platform that enables gig workers to file claims, manage plans, and track payouts.
+This repository contains the server-side API for Helion, a platform that enables gig workers to file claims, manage plans, and track payouts.
 
 ### Main features
 
@@ -29,7 +29,7 @@ This repository contains the server-side API for GigShield, a platform that enab
 ## 📥 Setup
 
 ```bash
-cd gigshield-backend
+cd helion-backend
 npm install
 ```
 
@@ -40,7 +40,7 @@ Copy environment variables (create `.env` file):
 ```text
 PORT=3000
 JWT_SECRET=your_secret_value
-DB_FILE=./db/gigshield.db
+DB_FILE=./db/helion.db
 ```
 
 ## ▶️ Run the server

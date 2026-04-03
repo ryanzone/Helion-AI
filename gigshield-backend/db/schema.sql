@@ -1,163 +1,285 @@
 -- ============================================================
--- GigShield Supabase Schema
--- Run this in your Supabase project's SQL Editor
--- ============================================================
+-- Helion FULL DYNAMIC SYSTEM (FINAL - CLEAN SCHEMA)
 
--- Users table
-create table if not exists users (
+create extension if not exists "pgcrypto";
+
+-- ============================================================
+-- 1. USERS (AUTH READY)
+-- ============================================================
+create table users (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   email text unique not null,
   phone text,
-  location text,
+  city text,
+
   password_hash text not null,
+
   created_at timestamptz default now()
 );
 
--- Plans table
-create table if not exists plans (
+-- ============================================================
+-- 2. PLANS
+-- ============================================================
+create table plans (
   id uuid primary key default gen_random_uuid(),
   name text not null,
-  price numeric not null,
-  features jsonb not null default '[]'
-);
-
--- Claims table
-create table if not exists claims (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references users(id) on delete cascade,
-  title text not null,
-  icon text,
-  date text,
-  status text default 'Pending',
-  amount numeric,
+  description text,
+  weekly_price numeric not null,
+  payout_amount numeric not null,
+  peril_type text check (peril_type in ('rain','aqi','flood')),
+  city_pool text,
   created_at timestamptz default now()
-);
-
--- Earnings table
-create table if not exists earnings (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references users(id) on delete cascade,
-  type text not null,
-  amount numeric not null,
-  date text,
-  status text,
-  icon text,
-  created_at timestamptz default now()
-);
-
--- Payouts table
-create table if not exists payouts (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references users(id) on delete cascade,
-  type text not null,
-  amount numeric not null,
-  date text,
-  status text,
-  icon text,
-  created_at timestamptz default now()
-);
-
--- Health stats table
-create table if not exists health_stats (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references users(id) on delete cascade unique,
-  heart_rate integer,
-  steps integer,
-  safety_score integer
-);
-
--- Appointments table
-create table if not exists appointments (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references users(id) on delete cascade,
-  title text not null,
-  date text,
-  location text,
-  icon text
-);
-
--- Coverage table
-create table if not exists coverage (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references users(id) on delete cascade,
-  label text not null,
-  value text not null
 );
 
 -- ============================================================
--- Seed Data
+-- 3. SUBSCRIPTIONS
+-- ============================================================
+create table subscriptions (
+  id uuid primary key default gen_random_uuid(),
+
+  user_id uuid references users(id) on delete cascade,
+  plan_id uuid references plans(id),
+
+  status text default 'active'
+    check (status in ('active','paused','expired')),
+
+  start_date date default current_date,
+  end_date date,
+
+  city_pool text not null,
+  underwriting_passed boolean default false,
+
+  created_at timestamptz default now()
+);
+
+-- ============================================================
+-- 4. WORKER ACTIVITY (UNDERWRITING)
+-- ============================================================
+create table worker_activity (
+  id uuid primary key default gen_random_uuid(),
+
+  user_id uuid references users(id) on delete cascade,
+  activity_date date not null,
+
+  hours_active numeric,
+  deliveries_count integer,
+
+  city text,
+  platform text,
+
+  created_at timestamptz default now(),
+
+  unique(user_id, activity_date)
+);
+
+-- ============================================================
+-- 5. UNDERWRITING VIEW
+-- ============================================================
+create view worker_active_days_30 as
+select
+  user_id,
+  count(*) as active_days,
+  case when count(*) >= 7 then true else false end as eligible
+from worker_activity
+where activity_date >= current_date - interval '30 days'
+group by user_id;
+
+-- ============================================================
+-- 6. TRIGGERS (PARAMETRIC ENGINE)
+-- ============================================================
+create table triggers (
+  id uuid primary key default gen_random_uuid(),
+
+  city_pool text not null,
+  peril_type text not null,
+
+  metric_value numeric not null,
+  threshold_value numeric not null,
+
+  triggered_at timestamptz default now(),
+  affected_date date default current_date,
+
+  data_source text,
+
+  status text default 'fired'
+    check (status in ('fired','processed','failed'))
+);
+
+-- ============================================================
+-- 7. CLAIMS
+-- ============================================================
+create table claims (
+  id uuid primary key default gen_random_uuid(),
+
+  user_id uuid references users(id) on delete cascade,
+  subscription_id uuid references subscriptions(id) on delete cascade,
+  trigger_id uuid references triggers(id) on delete cascade,
+
+  amount numeric not null,
+
+  status text default 'pending'
+    check (status in ('pending','approved','rejected','paid')),
+
+  is_auto boolean default true,
+
+  created_at timestamptz default now()
+);
+
+-- ============================================================
+-- 8. PAYMENTS
+-- ============================================================
+create table payments (
+  id uuid primary key default gen_random_uuid(),
+
+  user_id uuid references users(id) on delete cascade,
+  subscription_id uuid references subscriptions(id) on delete cascade,
+
+  amount numeric not null,
+
+  status text default 'success'
+    check (status in ('pending','success','failed')),
+
+  payment_method text,
+
+  created_at timestamptz default now()
+);
+
+-- ============================================================
+-- 9. PAYOUTS
+-- ============================================================
+create table payouts (
+  id uuid primary key default gen_random_uuid(),
+
+  claim_id uuid references claims(id) on delete cascade,
+
+  amount numeric not null,
+
+  status text default 'processing'
+    check (status in ('processing','paid','failed')),
+
+  paid_at timestamptz
+);
+
+-- ============================================================
+-- 10. PREMIUM CALCULATION LOG
+-- ============================================================
+create table premium_calculation_log (
+  id uuid primary key default gen_random_uuid(),
+
+  user_id uuid references users(id) on delete cascade,
+  subscription_id uuid references subscriptions(id) on delete cascade,
+
+  base_premium numeric not null,
+  activity_adjustment numeric default 0,
+
+  final_premium numeric not null,
+
+  calculated_at timestamptz default now()
+);
+
+-- ============================================================
+-- 11. DOCUMENTS
+-- ============================================================
+create table documents (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references users(id) on delete cascade,
+  name text not null,
+  status text default 'Uploaded',
+  created_at timestamptz default now()
+);
+
+-- ============================================================
+-- 🔥 FUNCTION: AUTO CLAIM CREATION
+-- ============================================================
+create function create_claims_for_trigger()
+returns trigger as $$
+begin
+  insert into claims (user_id, subscription_id, trigger_id, amount, is_auto)
+  select
+    s.user_id,
+    s.id,
+    new.id,
+    p.payout_amount,
+    true
+  from subscriptions s
+  join plans p on s.plan_id = p.id
+  where
+    s.status = 'active'
+    and s.city_pool = new.city_pool
+    and p.peril_type = new.peril_type;
+
+  return new;
+end;
+$$ language plpgsql;
+
+create trigger trigger_auto_claims
+after insert on triggers
+for each row
+when (new.metric_value >= new.threshold_value)
+execute function create_claims_for_trigger();
+
+-- ============================================================
+-- 🔥 FUNCTION: UNDERWRITING AUTO UPDATE
+-- ============================================================
+create function update_underwriting_status()
+returns trigger as $$
+begin
+  update subscriptions
+  set underwriting_passed = (
+    select eligible
+    from worker_active_days_30
+    where user_id = new.user_id
+  )
+  where user_id = new.user_id;
+
+  return new;
+end;
+$$ language plpgsql;
+
+create trigger trigger_underwriting
+after insert on worker_activity
+for each row
+execute function update_underwriting_status();
+
+-- ============================================================
+-- 🔥 FUNCTION: PREMIUM CALCULATION
+-- ============================================================
+create function calculate_premium()
+returns trigger as $$
+declare
+  base numeric := 40;
+  discount numeric := 0;
+begin
+  if new.underwriting_passed then
+    discount := -5;
+  end if;
+
+  insert into premium_calculation_log (
+    user_id,
+    subscription_id,
+    base_premium,
+    activity_adjustment,
+    final_premium
+  )
+  values (
+    new.user_id,
+    new.id,
+    base,
+    discount,
+    base + discount
+  );
+
+  return new;
+end;
+$$ language plpgsql;
+
+create trigger trigger_premium
+after insert on subscriptions
+for each row
+execute function calculate_premium();
+
+-- ============================================================
+-- END
 -- ============================================================
 
--- Seed plans
-insert into plans (name, price, features) values
-(
-  'Basic Gig',
-  299,
-  '["Accident cover up to ₹2L", "OPD cover ₹5,000/yr", "24/7 helpline", "App-based claims"]'
-),
-(
-  'Pro Shield',
-  599,
-  '["Accident cover up to ₹5L", "OPD cover ₹15,000/yr", "Critical illness cover", "Income protection 3 months", "Priority claims"]'
-),
-(
-  'Elite Guard',
-  999,
-  '["Accident cover up to ₹10L", "OPD cover ₹30,000/yr", "Critical illness + hospitalization", "Income protection 6 months", "Dedicated relationship manager", "Gym & wellness perks"]'
-)
-on conflict do nothing;
-
--- Seed demo user (password: password123)
--- bcrypt hash for "password123"
-insert into users (id, name, email, phone, location, password_hash) values
-(
-  'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-  'Rahul Sharma',
-  'rahul@delivery.com',
-  '+91 98765 43210',
-  'Mumbai, Maharashtra',
-  '$2a$10$eYMsKMWF4M2yGDtvddP3uuxfKAnKluFvPFCRWJqaik3t93wuGVyvO'
-)
-on conflict do nothing;
-
--- Seed claims for demo user
-insert into claims (user_id, title, icon, date, status, amount) values
-('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Bike Accident Claim', '🏍️', 'Mar 15, 2025', 'Approved', 15000),
-('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Medical Expense', '🏥', 'Feb 28, 2025', 'Pending', 8500),
-('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Phone Damage', '📱', 'Jan 10, 2025', 'Rejected', 3200)
-on conflict do nothing;
-
--- Seed earnings for demo user
-insert into earnings (user_id, type, amount, date, status, icon) values
-('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Delivery Bonus', 500, 'Today', 'Credited', '🚀'),
-('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Weekly Payout', 3200, 'Mar 18', 'Credited', '💰'),
-('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Referral Bonus', 250, 'Mar 15', 'Credited', '🎁'),
-('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Surge Earning', 800, 'Mar 12', 'Credited', '⚡')
-on conflict do nothing;
-
--- Seed payouts for demo user
-insert into payouts (user_id, type, amount, date, status, icon) values
-('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Weekly Payout', 3200, 'Mar 18, 2025', 'Completed', '💰'),
-('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Claim Reimbursement', 15000, 'Mar 15, 2025', 'Completed', '🏥'),
-('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Bonus Payout', 750, 'Mar 10, 2025', 'Completed', '🎉')
-on conflict do nothing;
-
--- Seed health stats for demo user
-insert into health_stats (user_id, heart_rate, steps, safety_score) values
-('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 72, 8432, 85)
-on conflict (user_id) do nothing;
-
--- Seed appointments for demo user
-insert into appointments (user_id, title, date, location, icon) values
-('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Health Check-up', 'Mar 25, 2025 10:00 AM', 'City Clinic, Andheri', '🏥'),
-('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Dental Cleaning', 'Apr 2, 2025 2:30 PM', 'SmileCare Dental', '🦷')
-on conflict do nothing;
-
--- Seed coverage for demo user
-insert into coverage (user_id, label, value) values
-('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Accident Cover', '₹5,00,000'),
-('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Medical Cover', '₹1,00,000'),
-('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Income Protection', '3 months'),
-('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'OPD Cover', '₹15,000/yr')
-on conflict do nothing;

@@ -8,6 +8,7 @@ interface GradientButtonProps {
     title: string;
     onPress: () => void;
     loading?: boolean;
+    disabled?: boolean;
     style?: ViewStyle;
     textStyle?: TextStyle;
     colors?: string[];
@@ -20,6 +21,7 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
     title,
     onPress,
     loading,
+    disabled,
     style,
     textStyle,
     colors,
@@ -40,7 +42,7 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
         return (
             <TouchableOpacity
                 onPress={onPress}
-                disabled={loading}
+                disabled={loading || disabled}
                 style={[styles.outlineButton, style]}
                 activeOpacity={0.7}
             >
@@ -65,7 +67,7 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
         return (
             <TouchableOpacity
                 onPress={onPress}
-                disabled={loading}
+                disabled={loading || disabled}
                 style={[styles.surfaceButton, style]}
                 activeOpacity={0.7}
             >
@@ -87,7 +89,7 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
     }
 
     return (
-        <TouchableOpacity onPress={onPress} disabled={loading} style={[styles.buttonContainer, style]} activeOpacity={0.85}>
+        <TouchableOpacity onPress={onPress} disabled={loading || disabled} style={[styles.buttonContainer, style]} activeOpacity={0.85}>
             <LinearGradient
                 colors={getGradient() as any}
                 start={{ x: 0, y: 0 }}

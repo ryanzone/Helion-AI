@@ -1,4 +1,4 @@
-// GigShield Material Design 3 Dark Theme
+// Helion Material Design 3 Dark Theme
 // Based on the approved HTML design mockups
 
 export const COLORS = {
