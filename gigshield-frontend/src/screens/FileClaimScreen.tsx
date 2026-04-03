@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import * as Location from 'expo-location';
 import {
     View,
     StyleSheet,
@@ -23,6 +24,32 @@ export default function FileClaimScreen({ navigation }: any) {
     const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
     const [loading, setLoading] = useState(false);
+    const [useLocation, setUseLocation] = useState(false);
+    const [locationData, setLocationData] = useState<any>(null);
+
+    const handleToggleLocation = async () => {
+        if (!useLocation) {
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert('Permission denied', 'Location permission is required to auto-detect.');
+                return;
+            }
+            setUseLocation(true);
+            try {
+                const loc = await Location.getCurrentPositionAsync({});
+                setLocationData({
+                    lat: loc.coords.latitude,
+                    lng: loc.coords.longitude
+                });
+            } catch(e) {
+                Alert.alert('Error', 'Failed to get location');
+                setUseLocation(false);
+            }
+        } else {
+            setUseLocation(false);
+            setLocationData(null);
+        }
+    };
 
     const handleSubmitClaim = async () => {
         if (!title || !amount) {
@@ -38,6 +65,8 @@ export default function FileClaimScreen({ navigation }: any) {
                 amount: parseFloat(amount),
                 date: dateStr,
                 icon: '🏥',
+                details: description,
+                location: locationData ? `${locationData.lat},${locationData.lng}` : undefined,
             });
             Alert.alert('Success', 'Your claim has been filed successfully!', [
                 { text: 'OK', onPress: () => navigation.goBack() },
@@ -60,7 +89,7 @@ export default function FileClaimScreen({ navigation }: any) {
                         <MaterialIcons name="close" size={24} color={COLORS.onSurface} />
                     </TouchableOpacity>
                     <ThemedText variant="h3" color={COLORS.primary} style={{ fontWeight: '900', letterSpacing: -1 }}>
-                        GigShield
+                        Helion
                     </ThemedText>
                 </View>
                 <ThemedText variant="overline" color={COLORS.outline}>New Claim</ThemedText>
@@ -123,7 +152,7 @@ export default function FileClaimScreen({ navigation }: any) {
                     />
 
                     {/* Location toggle */}
-                    <LocationToggle />
+                    <LocationToggle isEnabled={useLocation} onToggle={handleToggleLocation} locationStr={locationData ? `${locationData.lat.toFixed(4)}, ${locationData.lng.toFixed(4)}` : undefined} />
                 </SurfaceCard>
 
                 {/* Bento info cards */}
@@ -176,19 +205,23 @@ function FormField({ label, children }: { label: string; children: React.ReactNo
     );
 }
 
-function LocationToggle() {
+function LocationToggle({ isEnabled, onToggle, locationStr }: { isEnabled: boolean, onToggle: () => void, locationStr?: string }) {
     return (
         <View style={styles.toggleRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
                 <MaterialIcons name="location-on" size={22} color={COLORS.primary} />
                 <View style={{ marginLeft: 12 }}>
                     <ThemedText variant="body" style={{ fontWeight: '700' }}>Auto-detect Location</ThemedText>
-                    <ThemedText variant="caption">Matches data from your gig app</ThemedText>
+                    <ThemedText variant="caption">{locationStr ? locationStr : 'Matches data from your gig app'}</ThemedText>
                 </View>
             </View>
-            <View style={styles.togglePill}>
-                <View style={styles.toggleDot} />
-            </View>
+            <TouchableOpacity 
+                style={[styles.togglePill, { backgroundColor: isEnabled ? COLORS.secondary : COLORS.surfaceContainerHighest, alignItems: isEnabled ? 'flex-end' : 'flex-start' }]}
+                onPress={onToggle}
+                activeOpacity={0.8}
+            >
+                <View style={[styles.toggleDot, { backgroundColor: isEnabled ? COLORS.onSecondary : COLORS.onSurfaceVariant }]} />
+            </TouchableOpacity>
         </View>
     );
 }

@@ -23,7 +23,9 @@ import FileClaimScreen from './screens/FileClaimScreen';
 import PlanDetailScreen from './screens/PlanDetailScreen';
 import TriggerViewScreen from './screens/TriggerViewScreen';
 import PayoutSuccessScreen from './screens/PayoutSuccessScreen';
-
+import PlanSelectionScreen from './screens/PlanSelectionScreen';
+import PayoutHistoryScreen from './screens/PayoutHistoryScreen';
+import WorkerActivityScreen from './screens/WorkerActivityScreen';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -122,6 +124,9 @@ function AppStack() {
             <Stack.Screen name="MainTabs" component={MainTabs} />
             <Stack.Screen name="FileClaim" component={FileClaimScreen} />
             <Stack.Screen name="PlanDetail" component={PlanDetailScreen} />
+            <Stack.Screen name="PlanSelection" component={PlanSelectionScreen} />
+            <Stack.Screen name="WorkerActivity" component={WorkerActivityScreen} />
+            <Stack.Screen name="PayoutHistory" component={PayoutHistoryScreen} />
             <Stack.Screen name="TriggerView" component={TriggerViewScreen} />
             <Stack.Screen
                 name="PayoutSuccess"

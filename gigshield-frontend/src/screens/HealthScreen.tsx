@@ -8,18 +8,41 @@ import {
     StatusBar,
     ActivityIndicator,
 } from 'react-native';
+import { Pedometer } from 'expo-sensors';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { COLORS, SPACING, BORDER_RADIUS } from '../constants/Theme';
 import { ThemedText } from '../components/core/ThemedText';
 import { SurfaceCard } from '../components/core/SurfaceCard';
 import { AIInsightChip } from '../components/core/AIInsightChip';
 import { api } from '../services/api';
+import { useStore } from '../store/store';
 
-export default function HealthScreen() {
+export default function HealthScreen({ navigation }: any) {
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState<any>({ heart_rate: 0, steps: 0, safety_score: 0 });
     const [appointments, setAppointments] = useState<any[]>([]);
     const [coverage, setCoverage] = useState<any[]>([]);
+    const [currentStepCount, setCurrentStepCount] = useState(0);
+    const [prediction, setPrediction] = useState<any>(null);
+    const user = useStore(state => state.user);
+
+    useEffect(() => {
+        let subscription: Pedometer.Subscription | null = null;
+        const subscribe = async () => {
+            const isAvailable = await Pedometer.isAvailableAsync();
+            if (isAvailable) {
+                subscription = Pedometer.watchStepCount(result => {
+                    setCurrentStepCount(result.steps);
+                });
+            }
+        };
+        subscribe();
+        return () => {
+            if (subscription && subscription.remove) {
+                subscription.remove();
+            }
+        };
+    }, []);
 
     useEffect(() => {
         loadHealth();
@@ -35,7 +58,29 @@ export default function HealthScreen() {
             console.log('Health load error:', e);
         } finally {
             setLoading(false);
+            
+            // 🤖 FETCH ML PREDICTION
+            try {
+                const city = user?.location || 'Chennai';
+                const month = new Date().getMonth() + 1;
+                const mlData = await api.getRiskPrediction(city, month);
+                setPrediction(mlData);
+            } catch (err) {
+                console.log('ML Prediction failed:', err);
+            }
         }
+    };
+
+    // ✅ FIXED BOOK FUNCTION
+    const handleBookAppointment = () => {
+        const newAppointment = {
+            title: 'General Check-up',
+            date: 'Tomorrow, 10:00 AM',
+            location: 'City Hospital',
+            icon: '🏥'
+        };
+
+        setAppointments(prev => [newAppointment, ...prev]);
     };
 
     if (loading) {
@@ -46,7 +91,8 @@ export default function HealthScreen() {
         );
     }
 
-    const stepsDisplay = stats.steps >= 1000 ? `${(stats.steps / 1000).toFixed(1)}k` : `${stats.steps}`;
+    const totalSteps = (stats?.steps || 0) + currentStepCount;
+    const stepsDisplay = totalSteps >= 1000 ? `${(totalSteps / 1000).toFixed(1)}k` : `${totalSteps}`;
 
     return (
         <SafeAreaView style={styles.container}>
@@ -56,11 +102,11 @@ export default function HealthScreen() {
             <View style={styles.topBar}>
                 <View style={styles.topBarLeft}>
                     <MaterialIcons name="security" size={24} color={COLORS.primary} />
-                    <ThemedText variant="h3" color={COLORS.primary} style={{ letterSpacing: -1 }}>GigShield</ThemedText>
+                    <ThemedText variant="h3" color={COLORS.primary} style={{ letterSpacing: -1 }}>Helion</ThemedText>
                 </View>
-                <View style={styles.avatar}>
+                <TouchableOpacity style={styles.avatar} onPress={() => navigation.navigate('Account')}>
                     <MaterialIcons name="person" size={18} color={COLORS.onSurface} />
-                </View>
+                </TouchableOpacity>
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -121,13 +167,27 @@ export default function HealthScreen() {
 
                 {/* AI Insight */}
                 <AIInsightChip
-                    title="Health Insight"
-                    description="Your activity level has improved this week. Keep up the momentum — consider scheduling a wellness check-up."
+                    title="Real-time Risk Analysis"
+                    description={prediction 
+                        ? `Based on ${prediction.weather.temp}°C and ${prediction.weather.humidity}% humidity in ${user?.location || 'your area'}, the incident risk probability is ${(prediction.risk * 100).toFixed(2)}%.`
+                        : "Calculating safety insights from your environment..."
+                    }
                     style={{ marginBottom: SPACING.lg }}
                 />
 
-                {/* Upcoming appointments */}
-                <ThemedText variant="h3" style={{ marginBottom: SPACING.md }}>Upcoming</ThemedText>
+                {/* Appointments Header */}
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING.md }}>
+                    <ThemedText variant="h3">Appointments</ThemedText>
+                    <TouchableOpacity
+                        onPress={handleBookAppointment}
+                        style={{ padding: 8, backgroundColor: 'rgba(206, 189, 255, 0.1)', borderRadius: 20, paddingHorizontal: 16 }}
+                    >
+                        <ThemedText variant="body" color={COLORS.primary} style={{ fontWeight: '600' }}>
+                            + Book New
+                        </ThemedText>
+                    </TouchableOpacity>
+                </View>
+
                 {appointments.length > 0 ? appointments.map((a: any, i: number) => (
                     <AppointmentCard
                         key={i}
@@ -209,8 +269,6 @@ function AppointmentCard({ icon, title, date, location }: {
         </TouchableOpacity>
     );
 }
-
-// ─── Styles ────────────────────────────────────────────
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: COLORS.background },
