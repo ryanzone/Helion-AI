@@ -1,4 +1,5 @@
-const BASE_URL = 'http://localhost:3001/api';
+const BASE_URL = 'http://10.3.33.162:3001/api';
+const ML_URL = 'http://10.3.33.162:8000'; // ML Microservice
 
 let authToken: string | null = null;
 
@@ -108,6 +109,117 @@ export const api = {
 
     getPlan: async (id: string) => {
         const res = await fetch(`${BASE_URL}/plans/${id}`, { headers: headers() });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        return data;
+    },
+    subscribePlan: async (plan_id: string, city_pool: string) => {
+    const res = await fetch(`${BASE_URL}/plans/subscribe`, {
+        method: 'POST', headers: headers(),
+        body: JSON.stringify({ plan_id, city_pool }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    return data;
+},
+
+getSubscriptions: async () => {
+    const res = await fetch(`${BASE_URL}/subscriptions`, { headers: headers() });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    return data;
+},
+
+getTriggers: async () => {
+    const res = await fetch(`${BASE_URL}/triggers`, { headers: headers() });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    return data;
+},
+
+checkTrigger: async (payload: { peril_type: string; metric_value: number; city_pool: string; data_source?: string }) => {
+    const res = await fetch(`${BASE_URL}/triggers/check`, {
+        method: 'POST', headers: headers(),
+        body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    return data;
+},
+
+getPremium: async () => {
+    const res = await fetch(`${BASE_URL}/premium/calculate`, { headers: headers() });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    return data;
+},
+
+logActivity: async (activity: { activity_date: string; hours_active?: number; deliveries_count?: number; city?: string; platform?: string }) => {
+    const res = await fetch(`${BASE_URL}/worker/activity`, {
+        method: 'POST', headers: headers(),
+        body: JSON.stringify(activity),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    return data;
+},
+
+    getActivity: async () => {
+        const res = await fetch(`${BASE_URL}/worker/activity`, { headers: headers() });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        return data;
+    },
+    uploadDocument: async (formData: FormData) => {
+        const res = await fetch(`${BASE_URL}/profile/upload`, {
+            method: 'POST',
+            headers: {
+                ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+            },
+            body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        return data;
+    },
+
+    getRiskPrediction: async (city: string, month: number) => {
+        const res = await fetch(`${ML_URL}/predict`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ city, month }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Prediction failed');
+        return data;
+    },
+
+    cancelSubscription: async (id: string) => {
+        const res = await fetch(`${BASE_URL}/subscriptions/${id}/cancel`, {
+            method: 'PATCH',
+            headers: headers(),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        return data;
+    },
+
+    updateClaimStatus: async (id: string, status: string) => {
+        const res = await fetch(`${BASE_URL}/claims/${id}/status`, {
+            method: 'PATCH',
+            headers: headers(),
+            body: JSON.stringify({ status }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        return data;
+    },
+
+    seedDemoData: async () => {
+        const res = await fetch(`${BASE_URL}/admin/seed`, {
+            method: 'POST',
+            headers: headers(),
+        });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
         return data;

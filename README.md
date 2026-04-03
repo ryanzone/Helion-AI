@@ -1,4 +1,4 @@
-# 🚀 GigShield AI
+# 🚀 Helion AI
 AI-Powered Parametric Income Protection for Gig Workers
 
 ## 📌 Problem Statement
@@ -18,7 +18,7 @@ Currently, there is no fast, transparent, and automated system to compensate thi
 👉 Needs quick and simple income protection without complex claims.
 
 ## 💡 Solution Overview
-GigShield AI is a mobile-based parametric insurance platform that:
+Helion AI is a mobile-based parametric insurance platform that:
 - Offers weekly subscription plans
 - Monitors real-time weather & AQI
 - Provides automatic payouts when conditions are met
@@ -51,10 +51,10 @@ GigShield AI is a mobile-based parametric insurance platform that:
 # Installation and Setup
 ```
 # Clone repo
-git clone https://github.com/ryanzone/Gigshield-AI.git
+git clone https://github.com/ryanzone/Helion-AI.git
 
 # Navigate
-cd Gigshield-AI
+cd Helion-AI
 
 # Install dependencies
 npm install
@@ -82,7 +82,7 @@ npx expo start
 A coordinated syndicate can use GPS-spoofing applications to fake their location inside a parametric trigger zone, tricking the system into issuing mass false payouts and draining the liquidity pool.
 
 ### Differentiation — Genuine Worker vs Bad Actor
-GigShield's AI layer does not rely on GPS alone. Every payout decision is scored against a multi-signal trust model:
+Helion's AI layer does not rely on GPS alone. Every payout decision is scored against a multi-signal trust model:
 
 - **Motion consistency:** A genuine worker in heavy rain shows low or erratic movement via the device accelerometer. A spoofed user sitting at home shows zero motion or normal indoor activity patterns inconsistent with being on a delivery route
 - **Historical route fingerprint:** Each user builds a location history over time. The system flags claims where the reported location has never appeared in the user's past 30-day route data
@@ -91,7 +91,7 @@ GigShield's AI layer does not rely on GPS alone. Every payout decision is scored
 ## 🚨 Market Crash Response
 - During a simulated “Market Crash”, fraud rings attempt to drain the system using GPS spoofing.
   
-- GigShield AI prevents this by:
+- Helion AI prevents this by:
   - Multi-signal verification (not GPS alone)
   - Ring detection via timing + IP clustering
   - Device fingerprinting
@@ -109,7 +109,7 @@ GigShield's AI layer does not rely on GPS alone. Every payout decision is scored
 | Onboarding velocity | Accounts created in bulk before a weather event are scored high-risk |
 
 ### UX Balance — Handling Flagged Claims Fairly
-A genuine worker in a flood zone may have poor GPS signal and inconsistent sensor data which could look suspicious. GigShield handles this with a tiered review system:
+A genuine worker in a flood zone may have poor GPS signal and inconsistent sensor data which could look suspicious. Helion handles this with a tiered review system:
 
 - 🟢 **Green (auto-approved):** Trust score above threshold, all signals consistent → payout credited immediately
 - 🟡 **Yellow (soft flag):** One or two inconsistent signals → payout held for max 2 hours, worker notified in-app, single photo verification resolves it instantly
@@ -163,7 +163,7 @@ Payment Service:
 - Multi-language support for regional gig worker accessibility
 
 ## 🎯 Conclusion
-GigShield AI provides:
+Helion AI provides:
 - Instant income protection
 - Affordable weekly plans
 - Automated, claim-free payouts

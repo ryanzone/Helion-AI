@@ -60,14 +60,14 @@ export default function DashboardScreen({ navigation }: any) {
                 <View style={styles.topBarLeft}>
                     <MaterialIcons name="security" size={24} color={COLORS.primary} />
                     <ThemedText variant="h3" color={COLORS.primary} style={{ letterSpacing: -1 }}>
-                        GigShield
+                        Helion
                     </ThemedText>
                 </View>
                 <View style={styles.topBarRight}>
                     <TouchableOpacity>
                         <MaterialIcons name="notifications" size={24} color={`${COLORS.onSurface}99`} />
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.avatar}>
+                    <TouchableOpacity style={styles.avatar} onPress={() => navigation.navigate('Account')}>
                         <MaterialIcons name="person" size={20} color={COLORS.onSurface} />
                     </TouchableOpacity>
                 </View>
@@ -95,7 +95,7 @@ export default function DashboardScreen({ navigation }: any) {
                 {/* Activity Ledger */}
                 <View style={styles.sectionHeader}>
                     <ThemedText variant="h3">Activity Ledger</ThemedText>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate('WorkerActivity')}>
                         <ThemedText variant="caption" color={COLORS.primary} style={{ fontWeight: '600' }}>
                             View All
                         </ThemedText>
@@ -156,7 +156,7 @@ function HeroCard({ navigation, planName }: { navigation: any; planName: string 
                 </View>
                 <TouchableOpacity
                     style={styles.managePlanBtn}
-                    onPress={() => navigation.navigate('PlanDetail', { planId: '2' })}
+                    onPress={() => navigation.navigate('PlanSelection')}
                     activeOpacity={0.85}
                 >
                     <LinearGradient

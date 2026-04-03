@@ -44,7 +44,7 @@ export default function RegisterScreen({ navigation }: Props) {
         }
         setLoading(true);
         try {
-            const data = await api.register({ name, email, phone, location, password });
+            const data = await api.register({ name, email, phone, city: location, password });
             setToken(data.token);
             setUser(data.user);
             setLoggedIn(true);
@@ -74,7 +74,7 @@ export default function RegisterScreen({ navigation }: Props) {
                         <View style={styles.brandRow}>
                             <MaterialIcons name="security" size={28} color={COLORS.primary} />
                             <ThemedText variant="h3" color={COLORS.primary} style={{ fontWeight: '900', letterSpacing: -1 }}>
-                                GigShield
+                                Helion
                             </ThemedText>
                         </View>
                         <ThemedText variant="h1" style={styles.title}>

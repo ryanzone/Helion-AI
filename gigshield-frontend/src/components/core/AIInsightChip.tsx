@@ -12,7 +12,7 @@ interface AIInsightChipProps {
 }
 
 export const AIInsightChip: React.FC<AIInsightChipProps> = ({
-    title = 'GigShield AI Insight',
+    title = 'Helion AI Insight',
     description,
     style,
     variant = 'default',

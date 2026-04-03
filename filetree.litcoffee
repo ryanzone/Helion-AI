@@ -1,10 +1,10 @@
-# File Tree: gigshield
+# File Tree: helion
 
 **Generated:** 3/19/2026, 9:47:17 PM
-**Root Path:** `d:\programs\gigshield`
+**Root Path:** `d:\programs\helion`
 
 ```
-├── gigshield-backend
+├── helion-backend
 │   ├── db
 │   │   ├── schema.sql
 │   │   └── supabase.js
@@ -22,7 +22,7 @@
 │   ├── package-lock.json
 │   ├── package.json
 │   └── server.js
-├── gigshield-frontend
+├── helion-frontend
 │   ├── assets
 │   │   └── images
 │   │       ├── favicon.png
