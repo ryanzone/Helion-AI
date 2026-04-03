@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+scikit-learn
+pandas
+joblib
+requests
+python-dotenv
+xgboost
+geopy
+#requirements.txt
