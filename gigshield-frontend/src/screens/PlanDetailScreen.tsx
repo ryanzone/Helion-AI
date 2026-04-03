@@ -7,6 +7,7 @@ import {
     SafeAreaView,
     StatusBar,
     ActivityIndicator,
+    Alert,
 } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -20,6 +21,7 @@ export default function PlanDetailScreen({ route, navigation }: any) {
     const { planId = '1' } = route.params || {};
     const [plan, setPlan] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [subscribing, setSubscribing] = useState(false);
 
     useEffect(() => {
         loadPlan();
@@ -34,6 +36,25 @@ export default function PlanDetailScreen({ route, navigation }: any) {
             setPlan(getFallbackPlan());
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSubscribe = async () => {
+        try {
+            setSubscribing(true);
+
+            const res = await api.subscribePlan(planId, "Chennai");
+
+            Alert.alert("Success", "Subscription successful");
+            console.log(res);
+
+            navigation.navigate('PayoutSuccess');
+
+        } catch (err: any) {
+            console.error(err);
+            Alert.alert("Error", err.message || "Subscription failed");
+        } finally {
+            setSubscribing(false);
         }
     };
 
@@ -83,7 +104,6 @@ export default function PlanDetailScreen({ route, navigation }: any) {
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="light-content" />
 
-            {/* Top bar */}
             <View style={styles.topBar}>
                 <View style={styles.topBarLeft}>
                     <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -146,15 +166,22 @@ export default function PlanDetailScreen({ route, navigation }: any) {
 
                 <PolicyTerms />
 
-                <UpgradeCTA navigation={navigation} />
+                {/* 🔥 REAL SUBSCRIBE BUTTON */}
+                <TouchableOpacity onPress={handleSubscribe} disabled={subscribing}>
+                    <LinearGradient colors={GRADIENTS.primary as any} style={styles.upgradeCTA}>
+                        {subscribing ? (
+                            <ActivityIndicator color="#fff" />
+                        ) : (
+                            <ThemedText color={COLORS.onPrimary}>Subscribe Now</ThemedText>
+                        )}
+                    </LinearGradient>
+                </TouchableOpacity>
 
                 <View style={{ height: 40 }} />
             </ScrollView>
         </SafeAreaView>
     );
 }
-
-// ─── Sub Components ────────────────────────────────────
 
 function HeroHeader({ name, price }: { name: string; price: number }) {
     return (
@@ -186,18 +213,6 @@ function PolicyTerms() {
         </View>
     );
 }
-
-function UpgradeCTA({ navigation }: any) {
-    return (
-        <TouchableOpacity onPress={() => navigation.navigate('PayoutSuccess')}>
-            <LinearGradient colors={GRADIENTS.primary as any} style={styles.upgradeCTA}>
-                <ThemedText color={COLORS.onPrimary}>Simulate Trigger</ThemedText>
-            </LinearGradient>
-        </TouchableOpacity>
-    );
-}
-
-// ─── Styles ────────────────────────────────────────────
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: COLORS.background },
