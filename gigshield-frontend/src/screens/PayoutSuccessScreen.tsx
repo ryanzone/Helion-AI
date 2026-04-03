@@ -73,7 +73,7 @@ function SuccessIcon() {
 }
 
 function TransactionDetails({ amount }: { amount: number }) {
-    const details: Array<{ label: string; value: string; icon?: any; highlight?: boolean }> = [
+    const details: { label: string; value: string; icon?: any; highlight?: boolean }[] = [
         { label: 'Transaction ID', value: `#TXN-${Math.floor(Math.random() * 90000) + 10000}-GS` },
         { label: 'Amount', value: `₹${amount}` },
         { label: 'Est. Arrival', value: 'Instant (GigShield Priority)', highlight: true },

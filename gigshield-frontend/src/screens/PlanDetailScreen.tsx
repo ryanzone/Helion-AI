@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     View,
     StyleSheet,
@@ -21,11 +21,7 @@ export default function PlanDetailScreen({ route, navigation }: any) {
     const [plan, setPlan] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        loadPlan();
-    }, [planId]);
-
-    const loadPlan = async () => {
+    const loadPlan = useCallback(async () => {
         try {
             const data = await api.getPlan(planId);
             setPlan(data);
@@ -34,7 +30,11 @@ export default function PlanDetailScreen({ route, navigation }: any) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [planId]);
+
+    useEffect(() => {
+        loadPlan();
+    }, [loadPlan]);
 
     if (loading) {
         return (

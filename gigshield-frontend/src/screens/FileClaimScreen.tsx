@@ -10,8 +10,7 @@ import {
     Alert,
 } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS, GRADIENTS, SPACING, BORDER_RADIUS } from '../constants/Theme';
+import { COLORS, SPACING, BORDER_RADIUS } from '../constants/Theme';
 import { ThemedText } from '../components/core/ThemedText';
 import { SurfaceCard } from '../components/core/SurfaceCard';
 import { AIInsightChip } from '../components/core/AIInsightChip';

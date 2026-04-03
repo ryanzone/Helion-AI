@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useStore } from '../store/store';
 import { COLORS, GRADIENTS, SPACING, BORDER_RADIUS } from '../constants/Theme';
 import { ThemedText } from '../components/core/ThemedText';
 import { SurfaceCard } from '../components/core/SurfaceCard';
@@ -18,11 +17,9 @@ import { AIInsightChip } from '../components/core/AIInsightChip';
 import { api } from '../services/api';
 
 export default function DashboardScreen({ navigation }: any) {
-    const user = useStore((state) => state.user);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState<any>(null);
     const [recentPayouts, setRecentPayouts] = useState<any[]>([]);
-    const [coverage, setCoverage] = useState<any[]>([]);
 
     useEffect(() => {
         loadDashboard();
@@ -33,7 +30,6 @@ export default function DashboardScreen({ navigation }: any) {
             const data = await api.getDashboard();
             setStats(data.stats);
             setRecentPayouts(data.recentPayouts || []);
-            setCoverage(data.coverage || []);
         } catch (e) {
             console.log('Dashboard load error:', e);
         } finally {
@@ -75,7 +71,11 @@ export default function DashboardScreen({ navigation }: any) {
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {/* Hero Section: Pro Active Status */}
-                <HeroCard navigation={navigation} planName={stats?.activePlan || 'Pro Active'} />
+                <HeroCard 
+                    navigation={navigation} 
+                    planName={stats?.activePlan || 'Pro Active'} 
+                    planId={stats?.activePlanId}
+                />
 
                 {/* Bento Grid: Stats */}
                 <View style={styles.bentoGrid}>
@@ -132,7 +132,7 @@ export default function DashboardScreen({ navigation }: any) {
 
 // ─── Sub Components ────────────────────────────────────────
 
-function HeroCard({ navigation, planName }: { navigation: any; planName: string }) {
+function HeroCard({ navigation, planName, planId }: { navigation: any; planName: string; planId?: string }) {
     return (
         <TouchableOpacity activeOpacity={0.95} style={styles.heroWrapper}>
             <LinearGradient
@@ -156,7 +156,13 @@ function HeroCard({ navigation, planName }: { navigation: any; planName: string 
                 </View>
                 <TouchableOpacity
                     style={styles.managePlanBtn}
-                    onPress={() => navigation.navigate('PlanDetail', { planId: '2' })}
+                    onPress={() => {
+                        if (planId) {
+                            navigation.navigate('PlanDetail', { planId });
+                        } else {
+                            navigation.navigate('PlanSelection');
+                        }
+                    }}
                     activeOpacity={0.85}
                 >
                     <LinearGradient

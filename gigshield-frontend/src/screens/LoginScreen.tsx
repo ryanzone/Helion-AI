@@ -10,9 +10,8 @@ import {
 } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../store/store';
-import { COLORS, GRADIENTS, SPACING, BORDER_RADIUS } from '../constants/Theme';
+import { COLORS, SPACING, BORDER_RADIUS } from '../constants/Theme';
 import { ThemedText } from '../components/core/ThemedText';
 import { CustomInput } from '../components/core/CustomInput';
 import { GradientButton } from '../components/core/GradientButton';
@@ -23,8 +22,8 @@ interface Props {
 }
 
 export default function LoginScreen({ navigation }: Props) {
-    const [email, setEmail] = useState(' ');
-    const [password, setPassword] = useState(' ');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const setUser = useStore((state) => state.setUser);
@@ -136,7 +135,7 @@ export default function LoginScreen({ navigation }: Props) {
 
                     <View style={styles.footer}>
                         <ThemedText variant="body" color={COLORS.onSurfaceVariant}>
-                            Don't have an account?{' '}
+                            Don&apos;t have an account?{' '}
                         </ThemedText>
                         <TouchableOpacity onPress={() => navigation.navigate('Register')}>
                             <ThemedText variant="body" color={COLORS.primary} style={{ fontWeight: '700' }}>

@@ -11,7 +11,7 @@ import {
 import { NavigationProp } from '@react-navigation/native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useStore } from '../store/store';
-import { COLORS, SPACING, BORDER_RADIUS } from '../constants/Theme';
+import { COLORS, SPACING } from '../constants/Theme';
 import { ThemedText } from '../components/core/ThemedText';
 import { CustomInput } from '../components/core/CustomInput';
 import { GradientButton } from '../components/core/GradientButton';

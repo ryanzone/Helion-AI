@@ -3,7 +3,6 @@ import {
     View,
     StyleSheet,
     ScrollView,
-    TouchableOpacity,
     SafeAreaView,
     StatusBar,
     ActivityIndicator,
@@ -44,7 +43,6 @@ export default function PlanSelectionScreen({ navigation }: any) {
     }
 
     const planIcons = ['flash-outline', 'shield-checkmark', 'star'];
-    const planGradients = [GRADIENTS.dark, GRADIENTS.primary, GRADIENTS.secondary];
     const planColors = [COLORS.textMuted, COLORS.primary, COLORS.secondary];
 
     return (
@@ -64,7 +62,6 @@ export default function PlanSelectionScreen({ navigation }: any) {
                 {plans.map((plan: any, index: number) => {
                     const features = typeof plan.features === 'string' ? JSON.parse(plan.features) : (plan.features || []);
                     const isPopular = index === 1;
-                    const gradient = planGradients[index] || GRADIENTS.dark;
                     const color = planColors[index] || COLORS.textMuted;
                     const icon = planIcons[index] || 'flash-outline';
 

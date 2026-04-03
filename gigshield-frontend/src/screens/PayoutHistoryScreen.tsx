@@ -4,7 +4,6 @@ import {
     StyleSheet,
     FlatList,
     SafeAreaView,
-    TouchableOpacity,
     StatusBar,
     Platform,
     ActivityIndicator,
@@ -12,7 +11,7 @@ import {
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS, GRADIENTS, SPACING, BORDER_RADIUS, SHADOWS } from '../constants/Theme';
+import { COLORS, GRADIENTS, SPACING, BORDER_RADIUS } from '../constants/Theme';
 import { ThemedText } from '../components/core/ThemedText';
 import { GlassCard } from '../components/core/GlassCard';
 import { GradientButton } from '../components/core/GradientButton';

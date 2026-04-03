@@ -1,4 +1,10 @@
-const BASE_URL = 'http://localhost:3001/api';
+// Expo Web should have `process.env`, but guard defensively to avoid crashing the app
+// with `process is not defined` when env polyfills are missing.
+const BASE_URL =
+    (typeof process !== 'undefined' &&
+        process.env &&
+        process.env.EXPO_PUBLIC_API_URL) ||
+    'http://localhost:3001/api';
 
 let authToken: string | null = null;
 
