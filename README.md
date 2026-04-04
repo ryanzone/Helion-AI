@@ -3,9 +3,9 @@ AI-Powered Parametric Income Protection for Gig Workers
 
 ## 🌐 Live Demo
 
-🚀 https://helionai.netlify.app/
+🚀 **[Launch Helion AI](https://helionai.netlify.app/)**
 
-👉 Try the full working application here
+👉 Experience real-time parametric insurance with AI-powered risk detection and automatic payouts.
 
 ## 📌 Problem Statement
 Gig workers such as delivery partners rely on daily income. External factors like heavy rain, poor air quality, and floods reduce their working hours, leading to 20–30% income loss.
