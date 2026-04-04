@@ -1,177 +1,160 @@
 # 🚀 Helion AI
-AI-Powered Parametric Income Protection for Gig Workers
+
+### AI-Powered Parametric Income Protection for Gig Workers
+
+---
 
 ## 🌐 Live Demo
 
 🚀 **[Launch Helion AI](https://helionai.netlify.app/)**
 
-👉 Experience real-time parametric insurance with AI-powered risk detection and automatic payouts.
+👉 Experience our deployed web application that demonstrates AI-powered parametric insurance with automatic income protection.
+
+---
 
 ## 📌 Problem Statement
-Gig workers such as delivery partners rely on daily income. External factors like heavy rain, poor air quality, and floods reduce their working hours, leading to 20–30% income loss.
+
+Gig workers such as delivery partners rely on daily income. External factors like heavy rain, poor air quality, and floods reduce their working hours, leading to **20–30% income loss**.
 
 Currently, there is no fast, transparent, and automated system to compensate this income loss.
 
+---
+
 ## 👤 User Persona
+
 **Rahul – Delivery Partner**
-- Age: 26
-- Daily income: ₹600
-- Works 8–10 hours/day
-- Problem:
-  - Cannot work during bad weather
-  - Loses daily earnings
+
+* Age: 26
+* Daily income: ₹600
+* Works 8–10 hours/day
+
+### Problem:
+
+* Cannot work during bad weather
+* Loses daily earnings
 
 👉 Needs quick and simple income protection without complex claims.
 
+---
+
 ## 💡 Solution Overview
-Helion AI is a mobile-based parametric insurance platform that:
-- Offers weekly subscription plans
-- Monitors real-time weather & AQI
-- Provides automatic payouts when conditions are met
-- Uses AI for prediction and fraud detection
+
+Helion AI is a **web-based parametric insurance platform** that:
+
+* Offers **weekly subscription plans**
+* Uses **real-time environmental data (simulated APIs)**
+* Provides **automatic payouts when conditions are met**
+* Uses **AI logic for risk prediction and fraud detection (simulated)**
+
+---
 
 ## ⚙️ Workflow
-1. User registers on the app
-2. Selects a weekly plan
-3. System securely tracks user location and environmental conditions in real-time
-4. If condition exceeds threshold → 💸 Automatic payout is credited
 
-👉 No manual claims required
+1. User registers on the platform
+2. Selects a weekly insurance plan
+3. System monitors environmental conditions (rain, AQI, etc.)
+4. If threshold is exceeded → 💸 **Automatic payout is triggered**
+5. No manual claim process required
 
-## 💰 Pricing Model
+---
 
-| Plan     | Cost       | Payout |
-|----------|------------|--------|
-| Basic    | ₹20/week   | ₹200   |
-| Standard | ₹40/week   | ₹500   |
-| Premium  | ₹60/week   | ₹800   |
+## 💰 Pricing Model (Weekly)
 
-✔ Affordable ✔ Matches gig workers' earning cycle
+| Plan     | Cost     | Payout |
+| -------- | -------- | ------ |
+| Basic    | ₹20/week | ₹200   |
+| Standard | ₹40/week | ₹500   |
+| Premium  | ₹60/week | ₹800   |
+
+✔ Affordable
+✔ Matches gig workers’ weekly income cycle
+
+---
 
 ## 🌐 Parametric Triggers
-- 🌧️ Rainfall > 50 mm
-- 🌫️ AQI > 300
-- 🌊 Government flood alert
 
-👉 Based on real-world data → automatic payouts, no manual claims
-# Installation and Setup
-```
-# Clone repo
-git clone https://github.com/ryanzone/Helion-AI.git
+* 🌧️ Rainfall > 50 mm
+* 🌫️ AQI > 300
+* 🌊 Flood alerts (simulated)
 
-# Navigate
-cd Helion-AI
+👉 Triggers are **automatically detected → payouts are instant**
 
-# Install dependencies
-npm install
+---
 
-# Run backend
-npm start
+## 🤖 AI / ML Integration
 
-# Run mobile app
-npx expo start
-```
-## 🧠 AI/ML Integration
-- **Risk Prediction:** Uses historical weather + payout data to estimate probability of trigger events
-- **Dynamic Pricing:** Adjust premiums based on location risk profile
-- **Fraud Detection:** Rule-based + anomaly detection on: motion patterns, IP clustering, device fingerprints
-👉 Result: Fraud payouts are blocked before liquidity is impacted.
+* **Risk Prediction:** Estimates likelihood of disruptions using environmental factors
+* **Dynamic Pricing:** Adjusts premium based on risk level
+* **Fraud Detection:** Simulated multi-signal validation (location, activity patterns, etc.)
+
+---
+
 ## 🛠️ Tech Stack
-- **Frontend:** React Native (Expo)
-- **Backend:** Node.js + Express
-- **Database:** Supabase (PostgreSQL)
-- **APIs:** Weather API, AQI API
 
-## 🛡️ Fraud Prevention
+* **Frontend:** React (Web Application)
+* **Deployment:** Netlify
+* **Data Handling:** Simulated APIs / Mock Data
 
-### The Threat
-A coordinated syndicate can use GPS-spoofing applications to fake their location inside a parametric trigger zone, tricking the system into issuing mass false payouts and draining the liquidity pool.
+> ⚠️ Note: This is a **prototype demo system** focusing on workflow, automation, and AI logic demonstration.
 
-### Differentiation — Genuine Worker vs Bad Actor
-Helion's AI layer does not rely on GPS alone. Every payout decision is scored against a multi-signal trust model:
+---
 
-- **Motion consistency:** A genuine worker in heavy rain shows low or erratic movement via the device accelerometer. A spoofed user sitting at home shows zero motion or normal indoor activity patterns inconsistent with being on a delivery route
-- **Historical route fingerprint:** Each user builds a location history over time. The system flags claims where the reported location has never appeared in the user's past 30-day route data
-- **Device sensor cross-check:** Real weather exposure affects GPS signal quality, network handoffs between cell towers, and battery drain patterns. A spoofed location from a stable home environment produces clean sensor readings that contradict the claimed adverse conditions
-- **Session behaviour:** Genuine workers in bad weather open the app briefly to check status. Coordinated fraud rings show simultaneous sessions with identical interaction patterns across multiple accounts
-## 🚨 Market Crash Response
-- During a simulated “Market Crash”, fraud rings attempt to drain the system using GPS spoofing.
-  
-- Helion AI prevents this by:
-  - Multi-signal verification (not GPS alone)
-  - Ring detection via timing + IP clustering
-  - Device fingerprinting
-  - Tiered payout control (Green / Yellow / Red)
-### Data Points — Beyond GPS
+## 🛡️ Fraud Prevention (Conceptual Model)
 
-| Signal | What It Reveals |
-|--------|----------------|
-| Accelerometer & gyroscope | Whether the device is actually in motion or stationary |
-| Cell tower triangulation | Independent location verification separate from GPS |
-| Network IP address | Multiple claims from the same IP indicate a shared location |
-| Weather API cross-reference | Claimed location's weather must match a third-party source |
-| Claim timing correlation | Hundreds of claims firing simultaneously triggers a ring detection alert |
-| Device fingerprint | Flags multiple accounts operating from the same physical device |
-| Onboarding velocity | Accounts created in bulk before a weather event are scored high-risk |
+Helion AI uses a **multi-signal trust system** to prevent fraud:
 
-### UX Balance — Handling Flagged Claims Fairly
-A genuine worker in a flood zone may have poor GPS signal and inconsistent sensor data which could look suspicious. Helion handles this with a tiered review system:
+* Motion consistency (real vs spoofed movement)
+* Historical location patterns
+* Device behavior signals
+* Session activity patterns
 
-- 🟢 **Green (auto-approved):** Trust score above threshold, all signals consistent → payout credited immediately
-- 🟡 **Yellow (soft flag):** One or two inconsistent signals → payout held for max 2 hours, worker notified in-app, single photo verification resolves it instantly
-- 🔴 **Red (hard flag):** Multiple high-confidence fraud signals → payout withheld, escalated to manual review, worker notified with clear reason and appeal option. No account suspension without human confirmation
+### Trust Levels:
+
+* 🟢 Green → Auto payout
+* 🟡 Yellow → Soft verification
+* 🔴 Red → Flagged for review
+
+---
+
 ## 🔧 System Architecture
-- Mobile app collects:
-  -GPS
-  -Sensor data
-  -Session activity
-Backend processes:
-  -Weather & AQI APIs
-  -User data
-  -Trigger conditions
-AI Engine:
-  -Calculates risk score
-  -Runs fraud detection model
-  -Validates multi-signal trust score
-Decision Layer:
-  -If trigger + trust score valid → payout
-  -Else → flag (yellow/red)
-Payment Service:
-  -Instant payout to user wallet
 
-## 🗓️ Development Plan
+Frontend (Web App) →
+Simulated Data Layer →
+AI Logic (Risk + Fraud) →
+Decision Engine →
+💸 Payout Simulation
 
-**Week 1:**
-- Research & ideation
-- Define workflow
-- UI/UX design
-
-**Week 2:**
-- Build prototype
-- Simulate triggers
-- Prepare demo
+---
 
 ## 🧪 Prototype Scope
-- Basic mobile UI (login, plans, dashboard)
-- Simulated trigger system (mock data)
-- Dummy payout logic
-- End-to-end workflow demo
 
-👉 Focus: Concept validation, not full implementation
+* Web-based UI (registration, plans, dashboard)
+* Simulated triggers (weather/AQI)
+* Automatic payout demonstration
+* End-to-end workflow visualization
+
+👉 Focus: **Concept validation + automation demonstration**
+
+---
 
 ## 🔭 Future Scope
-- Integration with live Weather & AQI APIs for real-time parametric triggers
-- Aadhaar-based KYC for identity verification at onboarding
-- UPI/bank account linking for instant payout disbursement
-- ML model trained on historical claim and weather data for dynamic risk scoring
-- Expansion to other gig categories — cab drivers, freelancers, construction workers
-- Government flood alert API integration for automatic zone-based triggers
-- Multi-language support for regional gig worker accessibility
+
+* Real-time Weather & AQI API integration
+* Backend + database (Supabase/Firebase)
+* UPI-based instant payouts
+* Advanced ML model training
+* Expansion to other gig worker categories
+
+---
 
 ## 🎯 Conclusion
-Helion AI provides:
-- Instant income protection
-- Affordable weekly plans
-- Automated, claim-free payouts
 
-👉 A scalable solution for gig economy stability
+Helion AI provides:
+
+* Instant income protection
+* Affordable weekly insurance
+* Automated, claim-free payouts
+
+👉 A scalable solution for **India’s gig economy stability**
+
+---
