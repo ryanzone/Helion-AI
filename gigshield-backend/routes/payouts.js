@@ -1,22 +1,22 @@
-const express = require('express');
-const supabase = require('../db/supabase');
-const authMiddleware = require('../middleware/auth');
+const router = require('express').Router();
+const supabase = require('../db');
 
-const router = express.Router();
-router.use(authMiddleware);
+// GET payouts (reuse claims = payouts for now)
+router.get('/:userId', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('claims')
+      .select('id, amount, status, created_at')
+      .eq('user_id', req.params.userId)
+      .eq('status', 'approved')
+      .order('created_at', { ascending: false });
 
-// GET /api/payouts
-router.get('/', async (req, res) => {
-  const { data: payouts, error } = await supabase
-    .from('payouts')
-    .select('*')
-    .eq('user_id', req.userId)
-    .order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json(data || []);
 
-  if (error) return res.status(500).json({ error: error.message });
-
-  const total = payouts.reduce((sum, p) => sum + p.amount, 0);
-  res.json({ payouts, total });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;

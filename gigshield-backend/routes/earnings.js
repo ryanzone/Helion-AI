@@ -1,26 +1,16 @@
-const express = require('express');
-const supabase = require('../db/supabase');
-const authMiddleware = require('../middleware/auth');
+const router = require('express').Router();
+const supabase = require('../db');
+const auth = require('../middleware/auth');
 
-const router = express.Router();
-router.use(authMiddleware);
-
-// GET /api/earnings
-router.get('/', async (req, res) => {
-  const userId = req.userId;
-
-  const { data: earnings, error } = await supabase
+router.get('/', auth, async (req, res) => {
+  const { data, error } = await supabase
     .from('earnings')
     .select('*')
-    .eq('user_id', userId)
+    .eq('user_id', req.userId)
     .order('created_at', { ascending: false });
-
+    
   if (error) return res.status(500).json({ error: error.message });
-
-  const total = earnings.reduce((sum, e) => sum + e.amount, 0);
-  const thisWeek = earnings.slice(0, 3).reduce((sum, e) => sum + e.amount, 0);
-
-  res.json({ earnings, summary: { total, thisWeek } });
+  res.json(data || []);
 });
 
 module.exports = router;

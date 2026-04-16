@@ -1,31 +1,37 @@
-const express = require('express');
-const supabase = require('../db/supabase');
-const authMiddleware = require('../middleware/auth');
+const router = require('express').Router();
+const supabase = require('../db');
 
-const router = express.Router();
-router.use(authMiddleware);
-
-router.get('/', async (req, res) => {
-  const { data, error } = await supabase
-    .from('subscriptions')
-    .select('*, plans(name, weekly_price, payout_amount, peril_type, city_pool)')
-    .eq('user_id', req.userId)
-    .order('created_at', { ascending: false });
-
-  if (error) return res.status(500).json({ error: error.message });
-  res.json(data);
-});
-
-router.patch('/:id/cancel', async (req, res) => {
-  const { data, error } = await supabase
-    .from('subscriptions')
-    .update({ status: 'expired' })
-    .eq('id', req.params.id)
-    .eq('user_id', req.userId)
-    .select().single();
-
-  if (error) return res.status(500).json({ error: error.message });
-  res.json(data);
+router.get('/:userId', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .select('*, plans!inner(name, price)')
+      .eq('user_id', req.params.userId);
+      
+    if (error) {
+       // fallback manual join
+       const subs = await supabase.from('subscriptions').select('*').eq('user_id', req.params.userId);
+       const p = await supabase.from('plans').select('*');
+       if(subs.data && p.data) {
+           return res.json(subs.data.map(s => {
+               const pl = p.data.find(x => x.id === s.plan_id);
+               return {...s, name: pl?.name, price: pl?.price};
+           }));
+       }
+       return res.json([]);
+    }
+    
+    // flatten
+    const result = data.map(s => ({
+      ...s,
+      name: s.plans?.name,
+      price: s.plans?.price
+    }));
+    
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;

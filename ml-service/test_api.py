@@ -10,6 +10,11 @@ data = {
 try:
     response = requests.post(url, json=data)
     print(f"Status Code: {response.status_code}")
-    print(f"Response: {json.dumps(response.json(), indent=2)}")
+    if response.status_code == 200:
+        print("Response received successfully!")
+        print(json.dumps(response.json(), indent=2))
+    else:
+        print(f"Error Response: {response.text}")
 except Exception as e:
+
     print(f"Error: {e}")

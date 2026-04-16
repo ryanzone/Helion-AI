@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from app.model.predict import predict_risk
 import uvicorn
+import datetime
 
 app = FastAPI(
     title="GigShield AI ML Service",
@@ -15,7 +16,7 @@ app = FastAPI(
 # ======================
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For production, restrict this to specific origins
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
@@ -28,13 +29,20 @@ class WeatherInfo(BaseModel):
     temp: float
     humidity: int
     rainfall: float
+    description: str
+    icon: str
+    country: str
 
 class PredictionRequest(BaseModel):
-    city: str = Field(..., example="Chennai")
-    month: int = Field(..., ge=1, le=12, example=7)
+    city: str = Field(..., json_schema_extra={"example": "Chennai"})
+    month: int = Field(None, ge=1, le=12, json_schema_extra={"example": 7})
+    rain: float = Field(None, description="Optional rain value from frontend")
+    aqi: int = Field(None, description="Optional AQI value from frontend")
 
 class PredictionResponse(BaseModel):
-    risk: float
+    probability: float
+    risk_label: str
+    dynamic_premium: float
     weather: WeatherInfo
 
 # ======================
@@ -50,18 +58,27 @@ def predict(request: PredictionRequest):
     Predict risk based on city and month using ML model.
     """
     try:
-        # Perform prediction
-        prob, weather_data = predict_risk(request.city, request.month)
+        # Use provided month or current month
+        month = request.month if request.month else datetime.datetime.now().month
+
+        # Perform prediction (returns result dict and weather dict)
+        result, weather_data = predict_risk(request.city, month)
         
         # Return structured response
         return {
-            "risk": float(prob),
+            "probability": float(result["probability"]),
+            "risk_label": result["risk_label"],
+            "dynamic_premium": float(result["dynamic_premium"]),
             "weather": {
                 "temp": float(weather_data["temp"]),
                 "humidity": int(weather_data["humidity"]),
-                "rainfall": float(weather_data["rainfall"])
+                "rainfall": float(weather_data["rainfall"]),
+                "description": weather_data["description"],
+                "icon": weather_data["icon"],
+                "country": weather_data["country"]
             }
         }
+
     except Exception as e:
         # Global error handling for model or API failures
         print(f"❌ Prediction Error: {e}")
@@ -74,5 +91,4 @@ def predict(request: PredictionRequest):
 # RUN (For direct execution)
 # ======================
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=5005, reload=True)

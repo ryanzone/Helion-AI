@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import './Dashboard.css';
 
@@ -9,6 +9,9 @@ const MOCK_WEATHER = {
   Bangalore: { temp: 24, rain: 28, aqi: 95, humidity: 74, wind: 12 },
   Chennai: { temp: 34, rain: 8, aqi: 85, humidity: 91, wind: 14 },
   Hyderabad: { temp: 30, rain: 55, aqi: 188, humidity: 78, wind: 11 },
+  Pune: { temp: 26, rain: 10, aqi: 80, humidity: 60, wind: 15 },
+  Kolkata: { temp: 35, rain: 90, aqi: 110, humidity: 95, wind: 22 },
+  Ahmedabad: { temp: 40, rain: 0, aqi: 130, humidity: 20, wind: 5 },
   default: { temp: 29, rain: 22, aqi: 135, humidity: 75, wind: 13 },
 };
 
@@ -23,40 +26,70 @@ const MOCK_HISTORY = [
 ];
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [user, setUser] = useState({});
   const [weather, setWeather] = useState(null);
   const [riskScore, setRiskScore] = useState(0);
   const [mlData, setMlData] = useState(null);
 
   useEffect(() => {
-    const u = JSON.parse(localStorage.getItem('helion_user') || '{}');
+    const rawUser = localStorage.getItem('helion_user');
+    if (!rawUser) {
+      navigate('/register');
+      return;
+    }
+    
+    const u = JSON.parse(rawUser);
+    if (!u.name || !u.city) {
+      navigate('/register');
+      return;
+    }
+    
     setUser(u);
-    const city = u.city || 'default';
+    const city = u.city;
+    
+    // Initial mock weather for immediate display
     const w = MOCK_WEATHER[city] || MOCK_WEATHER.default;
     setWeather(w);
 
-    // Calculate risk score
-    let risk = 0;
-    if (w.rain > 50) risk += 40;
-    else if (w.rain > 30) risk += 20;
-    if (w.aqi > 300) risk += 35;
-    else if (w.aqi > 150) risk += 15;
-    if (w.humidity > 85) risk += 15;
-    risk = Math.min(risk, 98);
-    setTimeout(() => setRiskScore(risk), 300);
-
-    // Try ML service
+    // Try ML service for REAL data
     fetch('http://localhost:6000/predict', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ city, rain: w.rain, aqi: w.aqi })
+      body: JSON.stringify({ city })
     })
       .then(r => r.json())
-      .then(d => setMlData(d))
+      .then(d => {
+        setMlData(d);
+        // Sync weather and risk with real ML data
+        if (d.weather) {
+          setWeather({
+            ...d.weather,
+            rain: d.weather.rainfall, // map for UI compatibility
+            aqi: w.aqi // keep mock aqi as ML service doesn't provide it yet
+          });
+        }
+        if (d.probability !== undefined) {
+          setRiskScore(Math.round(d.probability * 100));
+        }
+      })
       .catch(() => {
-        setMlData({ probability: risk / 100, dynamic_premium: u.planCost || 40, risk_label: risk > 50 ? 'HIGH' : risk > 25 ? 'MEDIUM' : 'LOW' });
+        // Fallback calculation if service is down
+        let risk = 0;
+        if (w.rain > 50) risk += 40;
+        else if (w.rain > 30) risk += 20;
+        if (w.aqi > 300) risk += 35;
+        risk = Math.min(risk, 98);
+        setRiskScore(risk);
+        setMlData({ 
+          probability: risk / 100, 
+          dynamic_premium: u.planCost || 40, 
+          risk_label: risk > 50 ? 'HIGH' : risk > 25 ? 'MEDIUM' : 'LOW' 
+        });
       });
-  }, []);
+  }, [navigate]);
+
+  if (!user.name) return null; // Avoid flashing static layout while redirecting
 
   const plan = user.plan || 'standard';
   const wallet = user.wallet || 1000;
@@ -86,10 +119,10 @@ export default function Dashboard() {
           <div>
             <div className="dashboard__greeting">
               Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'},{' '}
-              <span>{user.name || 'Rahul'}</span> 👋
+              <span>{user.name}</span> 👋
             </div>
             <div className="dashboard__subgreeting">
-              {user.city || 'Mumbai'} · {user.platform || 'Swiggy'} Partner ·{' '}
+              {user.city} · {user.platform} Partner ·{' '}
               <span className={`dashboard__policy-badge ${user.policyActive ? 'active' : 'inactive'}`}>
                 {user.policyActive ? '🛡️ Policy Active' : '⚠️ No Active Policy'}
               </span>
@@ -178,7 +211,7 @@ export default function Dashboard() {
           {/* Weather */}
           <div className="dashboard__weather">
             <div className="dashboard__card-title">
-              <span>🌤️</span> Live Weather — {user.city || 'Mumbai'}
+              <span>🌤️</span> Live Weather — {user.city}
             </div>
             {weather && (
               <div className="dashboard__weather-grid">
