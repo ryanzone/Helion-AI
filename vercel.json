@@ -1,0 +1,14 @@
+{
+  "github": {
+    "silent": true
+  },
+  "buildCommand": "cd frontend-web && npm install && npm run build",
+  "outputDirectory": "frontend-web/build",
+  "framework": "create-react-app",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

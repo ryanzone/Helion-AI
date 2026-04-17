@@ -1,19 +1,24 @@
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from app.model.predict import predict_risk
 import uvicorn
 import datetime
 
+from app.model.predict import predict_risk
+from app.services.earnings_ai import analyze_earnings
+from app.services.guardian_ai import guardian_analysis
+
 app = FastAPI(
     title="GigShield AI ML Service",
-    description="Backend for predicting risk probabilities based on city and month.",
-    version="1.0.0"
+    description="Backend for predicting risk probabilities and AI insights.",
+    version="2.0.0"
 )
 
-# ======================
-# CORS CONFIGURATION
-# ======================
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,9 +27,6 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-# ======================
-# SCHEMAS (Request/Response)
-# ======================
 class WeatherInfo(BaseModel):
     temp: float
     humidity: int
@@ -33,11 +35,13 @@ class WeatherInfo(BaseModel):
     icon: str
     country: str
 
+
 class PredictionRequest(BaseModel):
-    city: str = Field(..., json_schema_extra={"example": "Chennai"})
-    month: int = Field(None, ge=1, le=12, json_schema_extra={"example": 7})
-    rain: float = Field(None, description="Optional rain value from frontend")
-    aqi: int = Field(None, description="Optional AQI value from frontend")
+    city: str = Field(..., example="Chennai")
+    month: int = Field(None, ge=1, le=12, example=7)
+    rain: float = None
+    aqi: int = None
+
 
 class PredictionResponse(BaseModel):
     probability: float
@@ -45,26 +49,30 @@ class PredictionResponse(BaseModel):
     dynamic_premium: float
     weather: WeatherInfo
 
-# ======================
-# ENDPOINTS
-# ======================
+
+class EarningsRequest(BaseModel):
+    user_id: str
+
+
+class GuardianRequest(BaseModel):
+    city: str
+
+
 @app.get("/")
 def home():
-    return {"status": "GigShield AI ML Service alive", "version": "1.0.0"}
+    return {
+        "status": "GigShield AI ML Service alive",
+        "version": "2.0.0"
+    }
+
 
 @app.post("/predict", response_model=PredictionResponse)
 def predict(request: PredictionRequest):
-    """
-    Predict risk based on city and month using ML model.
-    """
     try:
-        # Use provided month or current month
         month = request.month if request.month else datetime.datetime.now().month
 
-        # Perform prediction (returns result dict and weather dict)
         result, weather_data = predict_risk(request.city, month)
-        
-        # Return structured response
+
         return {
             "probability": float(result["probability"]),
             "risk_label": result["risk_label"],
@@ -80,15 +88,30 @@ def predict(request: PredictionRequest):
         }
 
     except Exception as e:
-        # Global error handling for model or API failures
         print(f"❌ Prediction Error: {e}")
         raise HTTPException(
             status_code=500,
             detail=f"Internal Server Error: {str(e)}"
         )
 
-# ======================
-# RUN (For direct execution)
-# ======================
+
+@app.post("/earnings-analysis")
+def earnings_analysis(request: EarningsRequest):
+    try:
+        return analyze_earnings(request.user_id)
+    except Exception as e:
+        print(f"❌ Earnings Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/guardian-analysis")
+def guardian(request: GuardianRequest):
+    try:
+        return guardian_analysis({"city": request.city})
+    except Exception as e:
+        print(f"❌ Guardian Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=5005, reload=True)
