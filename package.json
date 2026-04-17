@@ -1,0 +1,7 @@
+{
+  "name": "helion-ai-monorepo",
+  "private": true,
+  "scripts": {
+    "build": "cd frontend-web && npm install && npm run build"
+  }
+}
