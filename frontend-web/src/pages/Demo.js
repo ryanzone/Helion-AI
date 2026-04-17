@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './Demo.css';
+import { API_BASE, ML_BASE } from "../api";
 
 const DEMO_CITIES = [
   { name: 'Mumbai', rain: 72, aqi: 145, lat: 19.07, lng: 72.87 },
@@ -125,7 +126,7 @@ export default function Demo() {
 
     // Try real backend
     try {
-      await fetch('http://localhost:5000/api/payout/trigger', {
+     await fetch(`${API_BASE}/api/payout/trigger`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ city: city.name, rain: effectiveRain, aqi: effectiveAqi })

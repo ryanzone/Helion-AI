@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Plans.css';
+import { API_BASE } from "../api";
 
 const PLANS = [
   {
@@ -61,7 +62,7 @@ export default function Plans() {
     const plan = PLANS.find(p => p.id === selected);
     setLoading(true);
     try {
-      await fetch('http://localhost:5000/api/policy/subscribe', {
+      await fetch(`${API_BASE}/api/policy/subscribe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: user.id, plan: plan.id, cost: plan.cost })

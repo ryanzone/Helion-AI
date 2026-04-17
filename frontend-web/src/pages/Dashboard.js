@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import './Dashboard.css';
+import { API_BASE, ML_BASE } from "../api";
 
 const MOCK_WEATHER = {
   Mumbai: { temp: 31, rain: 42, aqi: 156, humidity: 88, wind: 18 },
@@ -53,7 +54,7 @@ export default function Dashboard() {
     setWeather(w);
 
     // Try ML service for REAL data
-    fetch('http://localhost:6000/predict', {
+   fetch(`${ML_BASE}/predict`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ city })
